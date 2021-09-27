@@ -63,7 +63,7 @@ jobs:
       - name: Download Magisk App
         uses: wei/wget@v1
         with:
-          args: $MAGISK_LINK
+          args: -O Magisk.apk $MAGISK_LINK
           
           
   factory_image:
@@ -76,4 +76,4 @@ jobs:
       - name: Download factory image
         uses: wei/wget@v1
         with:
-          args: FACTORY_LINK
+          args: -O factory_image.zip $FACTORY_LINK
