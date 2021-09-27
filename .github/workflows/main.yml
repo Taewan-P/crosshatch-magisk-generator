@@ -90,11 +90,22 @@ jobs:
         with:
           args: -O factory_image.zip ${{steps.link.outputs.prop}}
           
+      - name: Get factory image link
+        id: build_no
+        uses: notiz-dev/github-action-json-property@release
+        with:
+          path: 'image_info.json'
+          prop_path: 'build_number'
+          
       - name: Unzip files
         run: |
             cp Magisk.apk Magisk.zip
             mkdir magisk_unzipped
             unzip Magisk.zip -d magisk_unzipped/
+            mkdir factory_image
+            unzip factory_image.zip
+            FOLDER_NAME=$(ls -h factory_image | grep -i ${{steps.build_no.outputs.prop}})
+            unzip factory_image/"${FOLDER_NAME}"/"image-${FOLDER_NAME}.zip"
           
       - uses: uraimo/run-on-arch-action@v2.0.5
         name: Get aarch64 machine and patch
@@ -115,4 +126,10 @@ jobs:
       - name: Get results
         run: |
           echo ${{ steps.armcmd.outputs.inside_list }}
+          
+      - name: Upload boot image to artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: boot_img_unpatched
+          path: ./boot.img
           
