@@ -53,9 +53,10 @@ jobs:
           path: ./util_functions.sh
           
           
-  factory_image:
-    name: Download Factory Image
-    runs-on: ubuntu-latest
+  patch_img:
+    name: Gather files and start patching
+    needs: prerequisites
+    runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
       
@@ -65,24 +66,6 @@ jobs:
         with:
           path: 'image_info.json'
           prop_path: 'link'
-      
-      - name: Download factory image
-        uses: wei/wget@v1
-        with:
-          args: -O factory_image.zip ${{steps.link.outputs.prop}}
-          
-      - uses: actions/upload-artifact@v2
-        with:
-          name: factory_image
-          path: ./factory_image.zip
-          
-          
-  patch_img:
-    name: Gather files and start patching
-    needs: [prerequisites, factory_image]
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: actions/checkout@v2
       
       - name: Get Magisk App from artifacts
         uses: actions/download-artifact@v2
@@ -99,13 +82,13 @@ jobs:
         with:
           name: util_functions
           
-      - name: Get Factory Image from artifacts
-        uses: actions/download-artifact@v2
+      - name: Download factory image
+        uses: wei/wget@v1
         with:
-          name: factory_image
+          args: -O factory_image.zip ${{steps.link.outputs.prop}}
           
       - uses: uraimo/run-on-arch-action@v2.0.5
-        name: Get Aarch64 machine
+        name: Get Aarch64 Machine and Patch
         id: armcmd
         with:
           arch: aarch64
@@ -114,12 +97,16 @@ jobs:
           githubToken: ${{ github.token }}
           
           run: |
-            echo "Hello World!"
-            echo ::set-output name=uname::$(uname -a)
+            cp Magisk.apk Magisk.zip
+            mkdir magisk_unzipped
+            unzip Magisk.zip -d magisk_unzipped/
+            cp magisk_unzipped/lib/armeabi-v7a/libmagiskinit.so ./magiskinit
+            cp magisk_unzipped/lib/armeabi-v7a/libmagiskboot.so ./magiskboot
+            cp magisk_unzipped/lib/armeabi-v7a/libmagisk32.so ./magisk32
+            cp magisk_unzipped/lib/armeabi-v7a/libmagisk64.so ./magisk64
             echo ::set-output name=inside_list::$(ls -al)
             
       - name: Get results
         run: |
-          echo ${{ steps.armcmd.outputs.uname }}
           echo ${{ steps.armcmd.outputs.inside_list }}
           
