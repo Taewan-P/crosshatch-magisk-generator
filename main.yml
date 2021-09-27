@@ -1,0 +1,79 @@
+name: Create Boot Image
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  workflow_dispatch:
+
+jobs:
+  load_information:
+    name: Get information via JSON file
+    runs-on: ubuntu-latest
+    steps:
+      - name: Factory Image Link
+        id: link
+        uses: notiz-dev/github-action-json-property@release
+        with:
+          path: 'image_info.json'
+          prop_path: 'link'
+          
+      - name: Checksum
+        id: checksum
+        uses: notiz-dev/github-action-json-property@release
+        with:
+          path: 'image_info.json'
+          prop_path: 'checksum'
+          
+      - name: Magisk link
+        id: magisk
+        uses: notiz-dev/github-action-json-property@release
+        with:
+          path: 'image_info.json'
+          prop_path: 'magisk'
+          
+      - name: Set env variables
+        run: |
+          FACTORY_LINK=${{steps.link.outputs.prop}}
+          CHECKSUM=${{steps.checksum.outputs.prop}}
+          MAGISK_LINK=${{steps.magisk.outputs.prop}}
+      
+
+  prerequisites:
+    needs: load_information
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository
+      - uses: actions/checkout@v2
+
+      - name: Download boot script
+        uses: wei/wget@v1
+        with:
+          args: https://raw.githubusercontent.com/topjohnwu/Magisk/master/scripts/boot_patch.sh
+
+      - name: Download utility function script
+        uses: wei/wget@v1
+        with:
+          args: https://raw.githubusercontent.com/topjohnwu/Magisk/master/scripts/util_functions.sh
+          
+      - name: Download Magisk App
+        uses: wei/wget@v1
+        with:
+          args: $MAGISK_LINK
+          
+          
+  factory_image:
+    needs: load_information
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Set variables
+      
+      
+      - name: Download factory image
+        uses: wei/wget@v1
+        with:
+          args: FACTORY_LINK
