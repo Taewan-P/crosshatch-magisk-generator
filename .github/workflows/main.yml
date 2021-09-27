@@ -90,13 +90,14 @@ jobs:
         run: |
             rm factory_image.zip
             export FOLDER_NAME=$(ls -h factory_image/ | grep -i ${{steps.build_no.outputs.prop}})
+            echo "FOLDER_NAME=${FOLDER_NAME}" >> $GITHUB_ENV
             unzip factory_image/"${FOLDER_NAME}/image-${FOLDER_NAME}.zip"
             
       - name: Upload boot image to artifacts
         uses: actions/upload-artifact@v2
         with:
           name: boot_img_unpatched
-          path: ./factory_image/"${FOLDER_NAME}"/boot.img  
+          path: ./factory_image/${{ env.FOLDER_NAME }}/boot.img  
           
           
   patch_img:
@@ -151,10 +152,4 @@ jobs:
       - name: Get results
         run: |
           echo ${{ steps.armcmd.outputs.inside_list }}
-          
-      - name: Upload boot image to artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: boot_img_unpatched
-          path: ./boot.img
           
