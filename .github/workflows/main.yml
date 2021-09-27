@@ -9,46 +9,18 @@ on:
   workflow_dispatch:
 
 jobs:
-  load_information:
-    name: Get information via JSON file
+  prerequisites:
+    name: Prepare Magisk Files
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       
-      - name: Factory Image Link
-        id: link
-        uses: notiz-dev/github-action-json-property@release
-        with:
-          path: 'image_info.json'
-          prop_path: 'link'
-          
-      - name: Checksum
-        id: checksum
-        uses: notiz-dev/github-action-json-property@release
-        with:
-          path: 'image_info.json'
-          prop_path: 'checksum'
-          
-      - name: Magisk link
+      - name: Get Magisk Link
         id: magisk
         uses: notiz-dev/github-action-json-property@release
         with:
           path: 'image_info.json'
           prop_path: 'magisk'
-          
-      - name: Set env variables
-        run: |
-          FACTORY_LINK=${{steps.link.outputs.prop}}
-          CHECKSUM=${{steps.checksum.outputs.prop}}
-          MAGISK_LINK=${{steps.magisk.outputs.prop}}
-      
-
-  prerequisites:
-    name: Prepare Magisk Files
-    needs: load_information
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
 
       - name: Download boot script
         uses: wei/wget@v1
@@ -63,17 +35,91 @@ jobs:
       - name: Download Magisk App
         uses: wei/wget@v1
         with:
-          args: -O Magisk.apk $MAGISK_LINK
+          args: -O Magisk.apk ${{steps.magisk.outputs.prop}}
+          
+      - uses: actions/upload-artifact@v2
+        with:
+          name: magiskapp
+          path: ./Magisk.apk
+          
+      - uses: actions/upload-artifact@v2
+        with:
+          name: boot_script
+          path: ./boot_patch.sh
+          
+      - uses: actions/upload-artifact@v2
+        with:
+          name: util_functions
+          path: ./util_functions.sh
           
           
   factory_image:
     name: Download Factory Image
-    needs: load_information
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       
+      - name: Get Factory Image Link
+        id: link
+        uses: notiz-dev/github-action-json-property@release
+        with:
+          path: 'image_info.json'
+          prop_path: 'link'
+      
       - name: Download factory image
         uses: wei/wget@v1
         with:
-          args: -O factory_image.zip $FACTORY_LINK
+          args: -O factory_image.zip ${{steps.link.outputs.prop}}
+          
+      - uses: actions/upload-artifact@v2
+        with:
+          name: factory_image
+          path: ./factory_image.zip
+          
+          
+  patch_img:
+    name: Gather files and start patching
+    needs: [prerequisites, factory_image]
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Get Magisk App from artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: magiskapp
+          
+      - name: Get Boot Script from artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: boot_script
+          
+      - name: Get Util Function Script from artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: util_functions
+          
+      - name: Get Factory Image from artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: factory_image
+          
+      - uses: uraimo/run-on-arch-action@v2.0.5
+        name: Get Aarch64 machine
+        id: armcmd
+        with:
+          arch: aarch64
+          distro: ubuntu20.04
+          
+          githubToken: ${{ github.token }}
+          
+          run: |
+            echo "Hello World!"
+            echo ::set-output name=uname::$(uname -a)
+            echo ::set-output name=inside_list::$(ls -al)
+            
+      - name: Get results
+        run: |
+          echo ${{ steps.armcmd.outputs.uname }}
+          echo ${{ steps.armcmd.outputs.inside_list }}
+          
