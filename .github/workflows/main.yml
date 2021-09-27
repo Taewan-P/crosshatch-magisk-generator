@@ -56,9 +56,51 @@ jobs:
           path: ./util_functions.sh
           
           
+  factory_image:
+    name: Get Factory Image and Extract Boot Image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Get factory image link
+        id: link
+        uses: notiz-dev/github-action-json-property@release
+        with:
+          path: 'image_info.json'
+          prop_path: 'link'
+          
+      - name: Download factory image
+        uses: wei/wget@v1
+        with:
+          args: -O factory_image.zip ${{steps.link.outputs.prop}}
+          
+      - name: Get image build number
+        id: build_no
+        uses: notiz-dev/github-action-json-property@release
+        with:
+          path: 'image_info.json'
+          prop_path: 'build_number'
+          
+      - name: Unzip factory image
+        run: |
+            mkdir factory_image
+            unzip factory_image.zip
+            
+      - name: Extract boot image
+        run: |
+            FOLDER_NAME=$(ls -h factory_image | grep -i ${{steps.build_no.outputs.prop}})
+            unzip factory_image/"${FOLDER_NAME}/image-${FOLDER_NAME}.zip"
+            
+      - name: Upload boot image to artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: boot_img_unpatched
+          path: ./factory_image/"${FOLDER_NAME}"/boot.img  
+          
+          
   patch_img:
     name: Gather Files and Start Patching
-    needs: prerequisites
+    needs: [prerequisites, factory_image]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -78,34 +120,16 @@ jobs:
         with:
           name: util_functions
           
-      - name: Get factory image link
-        id: link
-        uses: notiz-dev/github-action-json-property@release
+      - name: Get boot image from artifacts
+        uses: actions/download-artifact@v2
         with:
-          path: 'image_info.json'
-          prop_path: 'link'
-          
-      - name: Download factory image
-        uses: wei/wget@v1
-        with:
-          args: -O factory_image.zip ${{steps.link.outputs.prop}}
-          
-      - name: Get factory image link
-        id: build_no
-        uses: notiz-dev/github-action-json-property@release
-        with:
-          path: 'image_info.json'
-          prop_path: 'build_number'
+          name: util_functions
           
       - name: Unzip files
         run: |
             cp Magisk.apk Magisk.zip
             mkdir magisk_unzipped
             unzip Magisk.zip -d magisk_unzipped/
-            mkdir factory_image
-            unzip factory_image.zip
-            FOLDER_NAME=$(ls -h factory_image | grep -i ${{steps.build_no.outputs.prop}})
-            unzip factory_image/"${FOLDER_NAME}"/"image-${FOLDER_NAME}.zip"
           
       - uses: uraimo/run-on-arch-action@v2.0.5
         name: Get aarch64 machine and patch
