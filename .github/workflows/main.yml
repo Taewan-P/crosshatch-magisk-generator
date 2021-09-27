@@ -84,11 +84,12 @@ jobs:
       - name: Unzip factory image
         run: |
             mkdir factory_image
-            unzip factory_image.zip
+            unzip factory_image.zip -d factory_image
             
       - name: Extract boot image
         run: |
-            FOLDER_NAME=$(ls -h factory_image | grep -i ${{steps.build_no.outputs.prop}})
+            rm factory_image.zip
+            export FOLDER_NAME=$(ls -h factory_image/ | grep -i ${{steps.build_no.outputs.prop}})
             unzip factory_image/"${FOLDER_NAME}/image-${FOLDER_NAME}.zip"
             
       - name: Upload boot image to artifacts
