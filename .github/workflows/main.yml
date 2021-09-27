@@ -42,6 +42,7 @@ jobs:
       
 
   prerequisites:
+    name: Prepare Magisk Files
     needs: load_information
     runs-on: ubuntu-latest
     steps:
@@ -65,13 +66,11 @@ jobs:
           
           
   factory_image:
+    name: Download Factory Image
     needs: load_information
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      
-      - name: Set variables
-      
       
       - name: Download factory image
         uses: wei/wget@v1
