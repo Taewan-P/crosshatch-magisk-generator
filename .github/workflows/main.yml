@@ -63,13 +63,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       
-      - name: Get factory image link
-        id: link
-        uses: notiz-dev/github-action-json-property@release
-        with:
-          path: 'image_info.json'
-          prop_path: 'link'
-      
       - name: Get Magisk app from artifacts
         uses: actions/download-artifact@v2
         with:
@@ -84,6 +77,13 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: util_functions
+          
+      - name: Get factory image link
+        id: link
+        uses: notiz-dev/github-action-json-property@release
+        with:
+          path: 'image_info.json'
+          prop_path: 'link'
           
       - name: Download factory image
         uses: wei/wget@v1
