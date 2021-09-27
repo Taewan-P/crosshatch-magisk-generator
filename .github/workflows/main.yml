@@ -13,6 +13,8 @@ jobs:
     name: Get information via JSON file
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+      
       - name: Factory Image Link
         id: link
         uses: notiz-dev/github-action-json-property@release
@@ -46,7 +48,6 @@ jobs:
     needs: load_information
     runs-on: ubuntu-latest
     steps:
-      # Checks-out your repository
       - uses: actions/checkout@v2
 
       - name: Download boot script
