@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       
-      - name: Get Magisk Link
+      - name: Get Magisk link
         id: magisk
         uses: notiz-dev/github-action-json-property@release
         with:
@@ -32,52 +32,55 @@ jobs:
         with:
           args: https://raw.githubusercontent.com/topjohnwu/Magisk/master/scripts/util_functions.sh
           
-      - name: Download Magisk App
+      - name: Download Magisk app
         uses: wei/wget@v1
         with:
           args: -O Magisk.apk ${{steps.magisk.outputs.prop}}
           
-      - uses: actions/upload-artifact@v2
+      - name: Upload Magisk app to artifacts
+        uses: actions/upload-artifact@v2
         with:
           name: magiskapp
           path: ./Magisk.apk
           
-      - uses: actions/upload-artifact@v2
+      - name: Upload boot script to artifacts
+        uses: actions/upload-artifact@v2
         with:
           name: boot_script
           path: ./boot_patch.sh
           
-      - uses: actions/upload-artifact@v2
+      - name: Upload utility function script to artifacts
+        uses: actions/upload-artifact@v2
         with:
           name: util_functions
           path: ./util_functions.sh
           
           
   patch_img:
-    name: Gather files and start patching
+    name: Gather Files and Start Patching
     needs: prerequisites
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       
-      - name: Get Factory Image Link
+      - name: Get factory image link
         id: link
         uses: notiz-dev/github-action-json-property@release
         with:
           path: 'image_info.json'
           prop_path: 'link'
       
-      - name: Get Magisk App from artifacts
+      - name: Get Magisk app from artifacts
         uses: actions/download-artifact@v2
         with:
           name: magiskapp
           
-      - name: Get Boot Script from artifacts
+      - name: Get boot script from artifacts
         uses: actions/download-artifact@v2
         with:
           name: boot_script
           
-      - name: Get Util Function Script from artifacts
+      - name: Get utility function script from artifacts
         uses: actions/download-artifact@v2
         with:
           name: util_functions
@@ -87,8 +90,14 @@ jobs:
         with:
           args: -O factory_image.zip ${{steps.link.outputs.prop}}
           
+      - name: Unzip files
+        run: |
+            cp Magisk.apk Magisk.zip
+            mkdir magisk_unzipped
+            unzip Magisk.zip -d magisk_unzipped/
+          
       - uses: uraimo/run-on-arch-action@v2.0.5
-        name: Get Aarch64 Machine and Patch
+        name: Get aarch64 machine and patch
         id: armcmd
         with:
           arch: aarch64
@@ -97,9 +106,6 @@ jobs:
           githubToken: ${{ github.token }}
           
           run: |
-            cp Magisk.apk Magisk.zip
-            mkdir magisk_unzipped
-            unzip Magisk.zip -d magisk_unzipped/
             cp magisk_unzipped/lib/armeabi-v7a/libmagiskinit.so ./magiskinit
             cp magisk_unzipped/lib/armeabi-v7a/libmagiskboot.so ./magiskboot
             cp magisk_unzipped/lib/armeabi-v7a/libmagisk32.so ./magisk32
