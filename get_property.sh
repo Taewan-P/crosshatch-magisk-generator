@@ -5,7 +5,7 @@
 # gets value from GETPROP_OUTPUT file. <- You should copy/paste it from your phone.
 # However is not fully implemented. Only shows property values when argument exists. 
 
-get_property() {
+getprop() {
 	if [ -f GETPROP_OUTPUT ]; then
 		local prop_output=`cat GETPROP_OUTPUT`
 		if [ $# -eq 0 ]; then
