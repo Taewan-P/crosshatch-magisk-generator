@@ -163,6 +163,7 @@ jobs:
         with:
           arch: aarch64
           distro: ubuntu20.04
+          shell: /bin/bash
           
           run: |
             apt-get update
