@@ -175,6 +175,7 @@ jobs:
             chmod +x boot_patch.sh
             chmod +x util_functions.sh
             chmod +x get_property.sh
+            sed -i '1c\#!/bin/bash' boot_patch.sh
             echo ::set-output name=result::$(bash -c 'source ./get_property.sh && ./boot_patch.sh boot.img')
             
       - name: Upload patched boot image
