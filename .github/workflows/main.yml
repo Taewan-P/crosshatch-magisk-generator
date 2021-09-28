@@ -171,10 +171,8 @@ jobs:
             cp magisk_unzipped/lib/armeabi-v7a/libmagiskboot.so ./magiskboot
             cp magisk_unzipped/lib/armeabi-v7a/libmagisk32.so ./magisk32
             cp magisk_unzipped/lib/armeabi-v7a/libmagisk64.so ./magisk64
-            source ./addon.d.sh
             source ./get_property.sh
             alias getprop='get_property'
-            source ./util_functions.sh
             echo ::set-output name=result::$(source ./boot_patch.sh boot.img)
             
       - name: Upload patched boot image
