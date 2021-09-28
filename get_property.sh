@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Ubuntu does not have command `getprop`. Only android does.
 # This function is a simple implementation of getprop command, but
