@@ -3,8 +3,16 @@ name: Create Boot Image
 on:
   push:
     branches: [ main ]
+    paths:
+      - image_info.json
+      - GETPROP_OUTPUT
+      - .github/workflows/main.yml
   pull_request:
     branches: [ main ]
+    paths:
+      - image_info.json
+      - GETPROP_OUTPUT
+      - .github/workflows/main.yml
 
   workflow_dispatch:
 
@@ -143,13 +151,19 @@ jobs:
           githubToken: ${{ github.token }}
           
           run: |
+            sudo apt-get update
+            sudo apt-get install dos2unix -y
             cp magisk_unzipped/lib/armeabi-v7a/libmagiskinit.so ./magiskinit
             cp magisk_unzipped/lib/armeabi-v7a/libmagiskboot.so ./magiskboot
             cp magisk_unzipped/lib/armeabi-v7a/libmagisk32.so ./magisk32
             cp magisk_unzipped/lib/armeabi-v7a/libmagisk64.so ./magisk64
-            echo ::set-output name=result::$(sh ./boot_patch.sh boot.img)
+            source ./get_property.sh
+            alias getprop='get_property'
+            echo ::set-output name=result::$(source ./boot_patch.sh boot.img)
             
-      - name: Get results
-        run: |
-          echo ${{ steps.armcmd.outputs.result }}
+      - name: Upload patched boot image
+        uses: actions/upload-artifact@v2
+        with:
+          name: boot_img_patched
+          path: ./new-boot.img
           
