@@ -15,7 +15,9 @@ getprop() {
 			local key="$1"
 			local key_value=`grep $key GETPROP_OUTPUT`
 			# IFS does not work in zsh!
-			IFS=':'; value=($key_value); unset IFS;
+			IFS=':'
+			value="$key_value"
+			unset IFS
 			local result=${value[1]}
 			echo $result | sed 's/[][]//g'
 		fi
