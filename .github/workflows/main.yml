@@ -190,6 +190,8 @@ jobs:
     needs: patch_img
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+     
       - name: Get boot image from artifacts
         uses: actions/download-artifact@v2
         with:
