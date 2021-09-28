@@ -21,3 +21,5 @@ getprop() {
 		fi
 	fi
 }
+
+export -f getprop
