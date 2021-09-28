@@ -185,3 +185,42 @@ jobs:
           name: boot_img_patched
           path: ./new-boot.img
           
+  release_img:
+    name: Deploy to Releases
+    needs: patch_img
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get boot image from artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: boot_img_unpatched
+          
+      - name: Get patched boot image from artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: boot_img_patched
+          
+      - name: Get image build number
+        id: build_no
+        uses: notiz-dev/github-action-json-property@release
+        with:
+          path: 'image_info.json'
+          prop_path: 'build_number'
+
+      - name: Rename files
+        run: |
+          mv new-boot.img boot_magisk_patched.img
+          mv boot.img boot_original.img
+          
+      - name: Upload images to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: boot*.img
+          tag: crosshatch-${{ steps.build_no.outputs.prop }}
+          file_glob: true
+          
+          
+        
+      
+      
