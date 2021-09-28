@@ -147,9 +147,9 @@ jobs:
             cp magisk_unzipped/lib/armeabi-v7a/libmagiskboot.so ./magiskboot
             cp magisk_unzipped/lib/armeabi-v7a/libmagisk32.so ./magisk32
             cp magisk_unzipped/lib/armeabi-v7a/libmagisk64.so ./magisk64
-            echo ::set-output name=inside_list::$(ls -al)
+            echo ::set-output name=result::$(sh ./boot_patch.sh boot.img)
             
       - name: Get results
         run: |
-          echo ${{ steps.armcmd.outputs.inside_list }}
+          echo ${{ steps.armcmd.outputs.result }}
           
