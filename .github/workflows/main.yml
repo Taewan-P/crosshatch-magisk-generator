@@ -148,11 +148,9 @@ jobs:
           arch: aarch64
           distro: ubuntu20.04
           
-          githubToken: ${{ github.token }}
-          
           run: |
-            sudo apt-get update
-            sudo apt-get install dos2unix -y
+            apt-get update
+            apt-get install dos2unix -y
             cp magisk_unzipped/lib/armeabi-v7a/libmagiskinit.so ./magiskinit
             cp magisk_unzipped/lib/armeabi-v7a/libmagiskboot.so ./magiskboot
             cp magisk_unzipped/lib/armeabi-v7a/libmagisk32.so ./magisk32
