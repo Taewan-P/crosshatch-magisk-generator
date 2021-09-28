@@ -39,6 +39,11 @@ jobs:
         uses: wei/wget@v1
         with:
           args: https://raw.githubusercontent.com/topjohnwu/Magisk/master/scripts/util_functions.sh
+      
+      - name: Download addon.d script
+        uses: wei/wget@v1
+        with:
+          args: https://raw.githubusercontent.com/topjohnwu/Magisk/master/scripts/addon.d.sh
           
       - name: Download Magisk app
         uses: wei/wget@v1
@@ -62,6 +67,12 @@ jobs:
         with:
           name: util_functions
           path: ./util_functions.sh
+          
+      - name: Upload addon.d script to artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: addond
+          path: ./addon.d.sh
           
           
   factory_image:
@@ -130,6 +141,11 @@ jobs:
         with:
           name: util_functions
           
+      - name: Get addon.d script from artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: addond
+          
       - name: Get boot image from artifacts
         uses: actions/download-artifact@v2
         with:
@@ -155,9 +171,10 @@ jobs:
             cp magisk_unzipped/lib/armeabi-v7a/libmagiskboot.so ./magiskboot
             cp magisk_unzipped/lib/armeabi-v7a/libmagisk32.so ./magisk32
             cp magisk_unzipped/lib/armeabi-v7a/libmagisk64.so ./magisk64
-            source ./util_functions.sh
+            source ./addon.d.sh
             source ./get_property.sh
             alias getprop='get_property'
+            source ./util_functions.sh
             echo ::set-output name=result::$(source ./boot_patch.sh boot.img)
             
       - name: Upload patched boot image
