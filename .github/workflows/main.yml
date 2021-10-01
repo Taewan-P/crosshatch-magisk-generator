@@ -157,19 +157,27 @@ jobs:
             mkdir magisk_unzipped
             unzip Magisk.zip -d magisk_unzipped/
           
-      - name: Patch boot image
-        run: |
-          sudo apt-get update
-          sudo apt-get install dos2unix -y
-          cp magisk_unzipped/lib/x86/libmagiskinit.so ./magiskinit
-          cp magisk_unzipped/lib/x86/libmagiskboot.so ./magiskboot
-          cp magisk_unzipped/lib/x86/libmagisk32.so ./magisk32
-          cp magisk_unzipped/lib/x86/libmagisk64.so ./magisk64
-          chmod +x boot_patch.sh
-          chmod +x util_functions.sh
-          chmod +x get_property.sh
-          sed -i '1c\#!/bin/bash' boot_patch.sh
-          echo $(bash -c 'source ./get_property.sh && ./boot_patch.sh boot.img')
+      - uses: uraimo/run-on-arch-action@v2.0.5
+        name: Get aarch64 machine and patch
+        id: armcmd
+        with:
+          arch: aarch64
+          distro: ubuntu20.04
+          shell: /bin/bash
+          
+          run: |
+            apt-get update
+            apt-get install dos2unix -y
+            cp magisk_unzipped/lib/armeabi-v7a/libmagiskinit.so ./magiskinit
+            cp magisk_unzipped/lib/armeabi-v7a/libmagiskboot.so ./magiskboot
+            cp magisk_unzipped/lib/armeabi-v7a/libmagisk32.so ./magisk32
+            cp magisk_unzipped/lib/armeabi-v7a/libmagisk64.so ./magisk64
+            chmod +x boot_patch.sh
+            chmod +x util_functions.sh
+            chmod +x get_property.sh
+            sed -i '1c\#!/bin/bash' boot_patch.sh
+            echo ::set-output name=result::$(bash -c 'source ./get_property.sh && ./boot_patch.sh boot.img')
+            echo $(bash -c 'source ./get_property.sh && getprop ro.crypto.state')
             
       - name: Upload patched boot image
         uses: actions/upload-artifact@v2
