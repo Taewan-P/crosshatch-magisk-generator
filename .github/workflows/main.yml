@@ -201,6 +201,13 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: boot_img_patched
+
+      - name: Get device name
+        id: device_name
+        uses: notiz-dev/github-action-json-property@release
+        with:
+          path: 'image_info.json'
+          prop_path: 'name'
           
       - name: Get image build number
         id: build_no
@@ -219,8 +226,9 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: boot*.img
-          tag: crosshatch-${{ steps.build_no.outputs.prop }}
+          tag: ${{ steps.device_name.outputs.prop }}-${{ steps.build_no.outputs.prop }}
           file_glob: true
+          overwrite: true
           
           
         
