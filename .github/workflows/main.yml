@@ -159,8 +159,8 @@ jobs:
           
       - name: Patch boot image
         run: |
-          apt-get update
-          apt-get install dos2unix -y
+          sudo apt-get update
+          sudo apt-get install dos2unix -y
           cp magisk_unzipped/lib/x86/libmagiskinit.so ./magiskinit
           cp magisk_unzipped/lib/x86/libmagiskboot.so ./magiskboot
           cp magisk_unzipped/lib/x86/libmagisk32.so ./magisk32
