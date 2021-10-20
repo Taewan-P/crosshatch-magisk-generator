@@ -1,7 +1,7 @@
 {
 	"name": "crosshatch",
-	"build_number": "RQ3A.211001.001",
-	"link": "https://dl.google.com/dl/android/aosp/crosshatch-rq3a.211001.001-factory-9d99e161.zip",
-	"checksum": "9d99e161e72b68da4fc7535537ca789714819179a7e592a291b9a66971841e00",
+	"build_number": "SP1A.210812.015",
+	"link": "https://dl.google.com/dl/android/aosp/crosshatch-sp1a.210812.015-factory-6dae03f8.zip",
+	"checksum": "6dae03f8e91644f6ee0b9e872faaee2b43312c490f05934940c68074dced303a",
 	"magisk": "https://github.com/topjohnwu/Magisk/releases/download/v23.0/Magisk-v23.0.apk"
 }
